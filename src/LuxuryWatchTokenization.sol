@@ -19,7 +19,7 @@ contract LuxuryWatch is ERC1155, Ownable{
         string watch_brand;
         string watch_model;
         string watch_serial;
-        uint256 price_per_faction;
+        uint256 total_fractions;
         }
         WatchDetails [] s_watch_details_info;
         event WatchResgisteredandMinted(address indexed minter, uint256 indexed amount, uint256 indexed mint_id);
@@ -31,9 +31,9 @@ contract LuxuryWatch is ERC1155, Ownable{
 
 
 
-   function registerAndMintWatch(uint256 mint_amt, string memory brand, string memory model, string memory serial, uint256 fractions) public {
-        s_watch_details_info.push(WatchDetails(brand, model, serial, fractions));
-        s_price_per_faction[tok_id] = fractions;
+   function registerAndMintWatch(uint256 mint_amt, string memory brand, string memory model, string memory serial, uint256 initial_per_price) public {
+        s_watch_details_info.push(WatchDetails(brand, model, serial, mint_amt));
+        s_price_per_faction[tok_id] = initial_per_price;
         _mint(msg.sender, tok_id, mint_amt, "");
         isForSale[tok_id][msg.sender] = false;
         emit WatchResgisteredandMinted(msg.sender, mint_amt, tok_id);
@@ -164,6 +164,27 @@ function TransferTokenWatchBatchFromUser(
     if(!success) revert PaymentFailed();
 
     // emit BatchWatchtokenTransfered(msg.sender, ids, amounts);
+}
+ 
+function redeemForPhysical(uint256 _id) public {
+    // 1. Validation: Ensure the watch exists in your array
+    require(_id < s_watch_details_info.length, "Watch does not exist");
+
+    // 2. The Logic: Look up the 100% threshold we saved in the struct
+    uint256 totalRequired = s_watch_details_info[_id].total_fractions;
+    
+    // 3. Balance Check: Does the user actually own every single piece?
+    uint256 userBalance = balanceOf(msg.sender, _id);
+    require(userBalance == totalRequired, "Must own 100% of fractions to redeem");
+
+    // 4. The Action: Burn the digital tokens (removes them from circulation forever)
+    _burn(msg.sender, _id, userBalance);
+
+    // 5. Cleanup: Turn off the "For Sale" status for good
+    isForSale[_id][msg.sender] = false;
+
+    // 6. Notification: Tell the vault owner to ship the watch
+    emit PhysicalRedemptionRequested(msg.sender, _id);
 }
 
  function uri(uint256 id) override public view returns(string memory) {
