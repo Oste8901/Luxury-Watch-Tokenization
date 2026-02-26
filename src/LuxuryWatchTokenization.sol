@@ -12,6 +12,7 @@ contract LuxuryWatch is ERC1155, Ownable{
     //mapping(uint256 the_id => uint256 tok_amt);
     mapping(uint256 => uint256) internal s_price_per_faction;
     mapping(uint256 => mapping(address => bool)) internal isForSale;
+    mapping(uint256 => mapping(address => uint256)) public s_secondary_prices;
     string public baseuri = "https://api.luxwatchvault.com/v1/metadata/";
     uint256 public tok_id;
     struct WatchDetails {
@@ -23,6 +24,7 @@ contract LuxuryWatch is ERC1155, Ownable{
         WatchDetails [] s_watch_details_info;
         event WatchResgisteredandMinted(address indexed minter, uint256 indexed amount, uint256 indexed mint_id);
         event WatchtokenTransfered(address indexed buyer, uint256 indexed amounts);
+        event PhysicalRedemptionRequested(address indexed redeemer, uint256 indexed watchId);
     constructor() ERC1155("") {
         tok_id = 0;
     }
@@ -58,12 +60,13 @@ function TransferTokenWatchfromUser(address from, uint256 _id_, uint256 am_t) pu
     require(isForSale[_id_][from] == true, "Seller has not listed this asset");
     
     // 2. Use your existing SetWatchPrice helper
-    uint256 _the_price = SetWatchPrice(_id_, am_t);
-    require(msg.value == _the_price, "Incorrect ETH amount sent");
+    // NEW: Use the seller's custom price
+    uint256 sellerPrice = s_secondary_prices[_id_][from];
+    // Fallback to vault price if they didn't set a custom one
+    if (sellerPrice == 0) { sellerPrice = s_price_per_faction[_id_]; }
     
-    // 3. Balance Check
-    require(balanceOf(from, _id_) >= am_t, "Seller doesn't have enough tokens");
-
+    uint256 _the_price = sellerPrice * am_t;
+    require(msg.value == _the_price, "Incorrect ETH amount sent");
     // 4. The Transfer
     // Ensure 'from' has approved the contract before this is called!
     _safeTransferFrom(from, msg.sender, _id_, am_t, "");
@@ -125,48 +128,42 @@ function TransferTokenWatchBatchFromUser(
     uint256[] memory ids, 
     uint256[] memory amounts
 ) public payable {
-    // 1. Array parity check
     require(ids.length == amounts.length, "Arrays must match");
 
     uint256 totalGrandCost = 0;
 
-    // 2. The Validation Loop
     for (uint256 i = 0; i < ids.length; i++) {
         uint256 id = ids[i];
         uint256 amount = amounts[i];
 
-        // Check A: Does the specific seller ('from') have these listed?
         require(isForSale[id][from] == true, "Seller has not listed one of these items");
-
-        // Check B: Does the seller actually have the tokens?
         require(balanceOf(from, id) >= amount, "Seller inventory too low");
 
-        // Tally: Calculate cost for this specific item
-        totalGrandCost += (s_price_per_faction[id] * amount);
+        // NEW LOGIC: Pull the price set by THIS specific seller
+        uint256 sellerPricePerFraction = s_secondary_prices[id][from];
+        
+        // Fallback: If seller hasn't set a secondary price, use the original vault price
+        if (sellerPricePerFraction == 0) {
+            sellerPricePerFraction = s_price_per_faction[id];
+        }
 
-        // Security: Reset the buyer's sale status to false for this watch
+        totalGrandCost += (sellerPricePerFraction * amount);
+
+        // Security & Cleanup
         isForSale[id][msg.sender] = false;
-
-        // Cleanup: If seller is now empty for this ID, unlist it for them
         if (balanceOf(from, id) == amount) {
             isForSale[id][from] = false;
         }
     }
 
-    // 3. Financial Check
     require(msg.value == totalGrandCost, "Incorrect total ETH sent");
 
-    // 4. Execution: Move tokens from user 'from' to 'msg.sender'
-    // Note: 'from' must have called setApprovalForAll(address(this), true)
     _safeBatchTransferFrom(from, msg.sender, ids, amounts, "");
 
-    // 5. Payment: Send the total cost to the SELLER
     (bool success,) = payable(from).call{value: totalGrandCost}("");
-    if(!success) {
-        revert PaymentFailed();
-    }
+    if(!success) revert PaymentFailed();
 
-   // emit BatchWatchtokenTransfered(msg.sender, ids, amounts);
+    // emit BatchWatchtokenTransfered(msg.sender, ids, amounts);
 }
 
  function uri(uint256 id) override public view returns(string memory) {
@@ -190,6 +187,14 @@ function TransferTokenWatchBatchFromUser(
  function UpdateChoice(uint256 the_token_id, address decider, bool decision) private {
        isForSale[the_token_id][decider] = decision;
  }
+
+ function setFractionPrice(uint256 _id, uint256 _newPricePerFraction) public {
+    require(balanceOf(msg.sender, _id) > 0, "You do not own this watch");
+    s_secondary_prices[_id][msg.sender] = _newPricePerFraction;
+    
+    // Automatically set to for sale once a price is set
+    //isForSale[_id][msg.sender] = true;
+}
 
 
 }
