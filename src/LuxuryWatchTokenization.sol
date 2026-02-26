@@ -152,7 +152,7 @@ function TransferTokenWatchBatchFromUser(
         // Security & Cleanup
         isForSale[id][msg.sender] = false;
         if (balanceOf(from, id) == amount) {
-            isForSale[id][from] = false;
+            isForSale[id][from] = false; 
         }
     }
 
