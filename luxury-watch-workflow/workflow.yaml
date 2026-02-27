@@ -1,0 +1,23 @@
+# ==========================================================================
+# CRE WORKFLOW SETTINGS FILE - Luxury Watch Tokenization
+# ==========================================================================
+# Workflow for registering and tokenizing luxury watches as ERC-1155 fractions.
+# Uses HTTP trigger to receive watch data and submit on-chain.
+# ==========================================================================
+
+local-simulation:
+  user-workflow:
+    workflow-name: "luxury-watch-workflow"
+  workflow-artifacts:
+    workflow-path: "./main.ts"
+    config-path: "./config.json"
+    secrets-path: "../secrets.yaml"
+
+# ==========================================================================
+staging:
+  user-workflow:
+    workflow-name: "luxury-watch-workflow"
+  workflow-artifacts:
+    workflow-path: "./main.ts"
+    config-path: "./config.json"
+    secrets-path: "../secrets.yaml"

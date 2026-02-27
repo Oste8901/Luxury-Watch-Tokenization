@@ -1,0 +1,19 @@
+# ==========================================================================
+# CRE PROJECT SETTINGS FILE - Luxury Watch Tokenization
+# ==========================================================================
+# Project-specific settings for CRE CLI targets.
+
+# ==========================================================================
+local-simulation:
+  rpcs:
+    - chain-name: ethereum-testnet-sepolia
+      url: https://ethereum-sepolia-rpc.publicnode.com
+# ==========================================================================
+staging:
+  cre-cli:
+    don-family: "zone-a"
+  account:
+    workflow-owner-address: "(optional) Multi-signature contract address"
+  rpcs:
+    - chain-name: ethereum-testnet-sepolia
+      url: https://sepolia.infura.io/v3/YOUR_API_KEY
