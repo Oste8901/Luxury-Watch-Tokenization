@@ -3,9 +3,11 @@ pragma solidity ^0.8.25;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 
 contract LuxuryWatch is ERC1155, Ownable{
+    using Strings for uint256;
     error PaymentFailed();
     
     
@@ -14,7 +16,7 @@ contract LuxuryWatch is ERC1155, Ownable{
     mapping(uint256 => mapping(address => bool)) internal isForSale;
     mapping(uint256 => mapping(address => uint256)) public s_secondary_prices;
     mapping(uint256 => address) public watch_creator;
-    string public baseuri = "https://api.luxwatchvault.com/v1/metadata/";
+    string public baseuri = "ipfs://bafybeicgoa2y4zhzqolx6ghciwmkiismqfpegqab7hbhndadnbneamkkwa/";
     uint256 public tok_id;
     struct WatchDetails {
         string watch_brand;
@@ -198,17 +200,14 @@ function redeemForPhysical(uint256 _id) public {
     emit PhysicalRedemptionRequested(msg.sender, _id);
 }
 
- function uri(uint256 id) override public view returns(string memory) {
-        require(id < s_watch_details_info.length, "Watch does not exist");
-         WatchDetails memory item = s_watch_details_info[id];
-         return (string.concat(baseuri, 
-        item.watch_brand, "/", 
-        item.watch_model, "/", 
-        item.watch_serial, 
-        ".json")
-         );
-
- }
+function uri(uint256 id) override public view returns(string memory) {
+    // 1. Check if the watch actually exists in your array
+    require(id < s_watch_details_info.length, "Watch does not exist");
+    
+    // 2. Return the CID folder + the token ID + .json
+    // Example: ipfs://bafybeicgoa2y4zhzqolx6ghciwmkiismqfpegqab7hbhndadnbneamkkwa/0.json
+    return string.concat(baseuri, Strings.toString(id), ".json");
+}
 
  function SetWatchPrice(uint256 _id, uint256 amounts_) public view returns(uint256 watch_price) {
           uint256 price_per_fraction = s_price_per_faction[_id];
@@ -237,5 +236,9 @@ function redeemForPhysical(uint256 _id) public {
  function getWatchCount() public view returns (uint256) {
     return s_watch_details_info.length;
  }
+
+ function setBaseURI(string memory newUri) public onlyOwner {
+    baseuri = newUri;
+}
 
 }
