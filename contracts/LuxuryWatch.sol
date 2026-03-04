@@ -13,6 +13,7 @@ contract LuxuryWatch is ERC1155, Ownable{
     mapping(uint256 => uint256) internal s_price_per_faction;
     mapping(uint256 => mapping(address => bool)) internal isForSale;
     mapping(uint256 => mapping(address => uint256)) public s_secondary_prices;
+    mapping(uint256 => address) public watch_creator;
     string public baseuri = "https://api.luxwatchvault.com/v1/metadata/";
     uint256 public tok_id;
     struct WatchDetails {
@@ -35,20 +36,22 @@ contract LuxuryWatch is ERC1155, Ownable{
         s_watch_details_info.push(WatchDetails(brand, model, serial, mint_amt));
         s_price_per_faction[tok_id] = initial_per_price;
         _mint(msg.sender, tok_id, mint_amt, "");
+        watch_creator[tok_id] = msg.sender;
         isForSale[tok_id][msg.sender] = false;
         emit WatchResgisteredandMinted(msg.sender, mint_amt, tok_id);
         tok_id++;
- }
+ } 
 
  function TransferTokenWatchFromVault(uint256 token_id, uint256 buy_amount) public payable {
-    require(isForSale[token_id][owner()] == true, "Token Not for Sale");
+    address creator = watch_creator[token_id];
+    require(isForSale[token_id][creator] == true, "Token Not for Sale");
     uint256 buy_value = SetWatchPrice(token_id, buy_amount);
     require(msg.value >= buy_value, "Insufficient amount");
-    require(balanceOf(owner(), token_id) >= buy_amount);
-    _safeTransferFrom(owner(), msg.sender, token_id, buy_amount, "");
+    require(balanceOf(creator, token_id) >= buy_amount);
+    _safeTransferFrom(creator, msg.sender, token_id, buy_amount, "");
     isForSale[token_id][msg.sender] = false;
     emit WatchtokenTransfered(msg.sender, buy_amount);
-    (bool success,) = payable(owner()).call{value: buy_value}("");
+    (bool success,) = payable(creator).call{value: buy_value}("");
     if(!success) {
         revert PaymentFailed();
     }
@@ -88,6 +91,7 @@ function TransferTokenWatchfromUser(address from, uint256 _id_, uint256 am_t) pu
 }
 
 function TransferTokenWatchBatchFromVault(
+    address creator,           // Now we explicitly ask: "Who are you buying from?"
     uint256[] memory ids, 
     uint256[] memory amounts
 ) public payable {
@@ -99,30 +103,37 @@ function TransferTokenWatchBatchFromVault(
         uint256 id = ids[i];
         uint256 amount = amounts[i];
 
-        // Check if the Vault has listed THIS specific watch
-        require(isForSale[id][owner()] == true, "One or more tokens not for sale");
+        // 1. SECURITY: Ensure this specific watch actually belongs to the provided creator
+        require(watch_creator[id] == creator, "One or more tokens do not belong to this creator");
 
-        // NEW: Check inventory inside the loop (Fixes the forge error)
-        require(balanceOf(owner(), id) >= amount, "Vault inventory too low");
+        // 2. CHECK: Ensure the creator has actually listed this specific watch for sale
+        require(isForSale[id][creator] == true, "One or more tokens not for sale");
 
-        // Add to total cost
+        // 3. Accumulate total cost
         totalGrandCost += (s_price_per_faction[id] * amount);
 
-        // Reset the buyer's sale flag
+        // 4. Reset the buyer's sale flag (so they don't accidentally list it immediately)
         isForSale[id][msg.sender] = false;
     }
 
-    // Verification
+    // 5. PAYMENT: Ensure the buyer sent enough ETH for the whole bundle
     require(msg.value >= totalGrandCost, "Insufficient total ETH sent");
 
-    // THE ACTION: Standard internal batch transfer call
-    _safeBatchTransferFrom(owner(), msg.sender, ids, amounts, "");
+    // 6. ACTION: Transfer the whole batch from the single creator to the buyer
+    // Note: The creator must have called setApprovalForAll(address(this), true) first!
+    _safeBatchTransferFrom(creator, msg.sender, ids, amounts, "");
 
-    // Payment Forwarding
-    (bool success,) = payable(owner()).call{value: totalGrandCost}("");
+    // 7. PAYOUT: Send the total ETH collected to the creator
+    (bool success,) = payable(creator).call{value: totalGrandCost}("");
     if(!success) revert PaymentFailed();
-}
 
+    // 8. REFUND: Send back any extra ETH sent by mistake
+    /*if (msg.value > totalGrandCost) {
+        payable(msg.sender).transfer(msg.value - totalGrandCost); 
+    }*/
+
+    emit WatchtokenTransfered(msg.sender, totalGrandCost); // Updated event for batch
+}
 function TransferTokenWatchBatchFromUser(
     address from,
     uint256[] memory ids, 
@@ -205,8 +216,8 @@ function redeemForPhysical(uint256 _id) public {
           return watch_price;
  }
 
- function UpdateChoice(uint256 the_token_id, address decider, bool decision) private {
-       isForSale[the_token_id][decider] = decision;
+ function UpdateChoice(uint256 the_token_id, bool decision) public {
+       isForSale[the_token_id][msg.sender] = decision;
  }
 
  function setFractionPrice(uint256 _id, uint256 _newPricePerFraction) public {
