@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.25;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -16,7 +16,7 @@ contract LuxuryWatch is ERC1155, Ownable{
     mapping(uint256 => mapping(address => bool)) internal isForSale;
     mapping(uint256 => mapping(address => uint256)) public s_secondary_prices;
     mapping(uint256 => address) public watch_creator;
-    string public baseuri = "ipfs://bafybeicgoa2y4zhzqolx6ghciwmkiismqfpegqab7hbhndadnbneamkkwa/";
+    string public baseuri;
     uint256 public tok_id;
     struct WatchDetails {
         string watch_brand;
@@ -64,7 +64,7 @@ function TransferTokenWatchfromUser(address from, uint256 _id_, uint256 am_t) pu
     // 1. Check if the specific seller ('from') has enabled the sale
     require(isForSale[_id_][from] == true, "Seller has not listed this asset");
     
-    // 2. Use your existing SetWatchPrice helper
+    // 2. Use your existing SetWatchPrice helper 
     // NEW: Use the seller's custom price
     uint256 sellerPrice = s_secondary_prices[_id_][from];
     // Fallback to vault price if they didn't set a custom one

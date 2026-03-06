@@ -50,7 +50,7 @@ coverage.json
 # Smart Contract Build Artifacts
 *.abi
 *.bin
-out/
+out/ 
 broadcast/
 cache/
 lib/
