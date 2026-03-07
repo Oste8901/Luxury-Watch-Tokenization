@@ -13,7 +13,14 @@ Turn verified luxury watches into tradeable fractional tokens. Each watch is reg
 - **Automated IPFS Metadata** — One command generates ERC-1155 metadata from on-chain data, uploads to Pinata, and updates the contract URI
 - **Primary & Secondary Market** — Buy fractions from the vault (creator) or from other holders at custom prices
 - **Physical Redemption** — Collect 100% of a watch's fractions to burn them and redeem the physical timepiece
-- **Batch Transfers** — Transfer multiple watch fractions in a single transaction
+- **Hackathon Meta** — Includes a full 2-minute demo script and automated terminal workflow for the perfect submission.
+
+---
+
+## 📽️ Demo & Submission
+
+For a step-by-step guide on recording your submission video, see:
+👉 [**Ultimate Hackathon Walkthrough (with Scripts)**](walkthrough.md)
 
 ---
 
@@ -42,8 +49,8 @@ Turn verified luxury watches into tradeable fractional tokens. Each watch is reg
 │  │   Folder CID                        │ signed report      │
 │  │                                     │                    │
 ├──│─────────────────────────────────────│────────────────────┤
-│  │        ON-CHAIN (Sepolia)           │                    │
-│  │                                     ▼                    │
+│  │        ON-CHAIN (Sepolia)           │                   │
+│  │                                     ▼                   │
 │  │  ┌──────────────────────┐    ┌──────────────────────┐   │
 │  │  │   LuxuryWatch.sol    │◄───│ WatchMintingConsumer  │   │
 │  │  │   (ERC-1155)         │    │ (CRE Report Decoder)  │   │
@@ -65,19 +72,22 @@ stablecoin-ace-ccip/
 │   ├── WatchMintingConsumer.sol    # CRE consumer — decodes DON reports → calls LuxuryWatch
 │   └── IReceiverTemplate.sol      # Abstract base for CRE report receivers
 ├── luxury-watch-workflow/
-│   ├── main.ts                    # CRE workflow — HTTP trigger → appraisal → on-chain report
-│   ├── config.json                # Deployed contract addresses
+│   ├── main.ts                    # CRE workflow — appraisal logic & DON report generation
+│   ├── Onboard.js                 # Internal CRE utility
+│   ├── config.json                # Deployed contract addresses & Gas Settings
 │   ├── http_trigger_payload.json  # Watch data sent to the workflow
 │   ├── workflow.yaml              # CRE CLI settings
-│   └── package.json               # Workflow dependencies (@chainlink/cre-sdk, viem, zod)
+│   └── tsconfig.json              # TypeScript configuration
 ├── scripts/
-│   ├── mint-watch.sh              # Interactive — prompts for watch details, mints, uploads IPFS
-│   └── pinata-upload.js           # Reads on-chain data → generates metadata → uploads to Pinata
+│   ├── mint-watch.sh              # Interactive script — Mints & Syncs IPFS in one go
+│   ├── pinata-upload.js           # Metadata generator & IPFS uploader
+│   └── direct-mint.js             # Utility for direct contract interaction
 ├── metadata/                      # Auto-generated JSON metadata (local cache)
+├── walkthrough.md                 # 🎙️ Submissions script & step-by-step demo guide
 ├── foundry.toml                   # Foundry config
 ├── project.yaml                   # CRE project settings
 ├── .env.example                   # Environment variables template
-└── package.json                   # Root dependencies (ethers, axios, dotenv, form-data)
+└── package.json                   # Root dependencies (ethers, axios, dotenv)
 ```
 
 ---
@@ -88,15 +98,15 @@ stablecoin-ace-ccip/
 
 | Tool | Install |
 |------|---------|
-| **Foundry** (forge, cast) | `curl -L https://foundry.paradigm.xyz \| bash && foundryup` |
-| **Bun** | `curl -fsSL https://bun.sh/install \| bash` |
+| **Foundry** | `curl -L https://foundry.paradigm.xyz | bash && foundryup` |
+| **Bun** | `curl -fsSL https://bun.sh/install | bash` |
 | **CRE CLI** | [Chainlink CRE Docs](https://docs.chain.link/chainlink-functions/getting-started) |
-| **Node.js** (v18+) | [nodejs.org](https://nodejs.org) |
+| **Node.js** | v18+ |
 
 ### 1. Install Dependencies
 
 ```bash
-# Solidity dependencies (OpenZeppelin)
+# Solidity dependencies
 npm install
 
 # CRE workflow dependencies
@@ -111,169 +121,77 @@ nano .env
 ```
 
 Fill in:
-- `CRE_ETH_PRIVATE_KEY` — Your wallet private key (needs Sepolia ETH)
-- `PINATA_JWT` — Your Pinata API JWT ([get one here](https://app.pinata.cloud/developers/api-keys))
+- `CRE_ETH_PRIVATE_KEY` — Admin wallet (Sepolia ETH)
+- `PINATA_JWT` — Pinata API JWT
 
-Then load env vars:
+Then load:
 ```bash
 source .env
 export PRIVATE_KEY=$CRE_ETH_PRIVATE_KEY
 export CRE_PROJECT_ROOT=$(pwd)
 ```
 
-### 3. Compile Contracts
+### 3. Deploy & Setup
 
-```bash
-forge build
-```
-
-### 4. Deploy Contracts
-
-```bash
-# Deploy LuxuryWatch (ERC-1155)
-forge create contracts/LuxuryWatch.sol:LuxuryWatch \
-  --rpc-url $SEPOLIA_RPC --private-key $PRIVATE_KEY --broadcast
-
-# Copy the "Deployed to:" address, then:
-export LUXURY_WATCH=<paste_address>
-
-# Deploy WatchMintingConsumer (CRE listener)
-forge create contracts/WatchMintingConsumer.sol:WatchMintingConsumer \
-  --rpc-url $SEPOLIA_RPC --private-key $PRIVATE_KEY --broadcast \
-  --constructor-args $LUXURY_WATCH "0x0000000000000000000000000000000000000000" "0x64756d6d790000000000"
-
-# Copy the "Deployed to:" address, then:
-export WATCH_CONSUMER=<paste_address>
-```
-
-### 5. Update Contract Addresses
-
-Update the deployed addresses in two places:
-
-**`.env`:**
-```env
-LUXURY_WATCH_SEPOLIA=<your LUXURY_WATCH address>
-WATCH_CONSUMER_SEPOLIA=<your WATCH_CONSUMER address>
-```
-
-**`luxury-watch-workflow/config.json`:**
-```json
-{
-  "evms": [{
-    "luxuryWatchAddress": "<your LUXURY_WATCH address>",
-    "consumerAddress": "<your WATCH_CONSUMER address>",
-    "chainSelectorName": "ethereum-testnet-sepolia",
-    "gasLimit": "500000"
-  }]
-}
-```
+Follow the detailed instructions in [**walkthrough.md**](walkthrough.md) to:
+1. Deploy `LuxuryWatch` and `WatchMintingConsumer`.
+2. Update `luxury-watch-workflow/config.json` with the new addresses and a `gasLimit` of `"1000000"`.
+3. Build the workflow: `cre workflow build luxury-watch-workflow`.
 
 ---
 
 ## ⌚ Usage
 
-### Mint a Watch (One Command)
+### The "All-in-One" Minting Command
 
-The interactive minting script handles everything:
+Run the interactive script to tokenize a watch and sync it to IPFS:
 
 ```bash
 ./scripts/mint-watch.sh
 ```
 
-It will prompt you for the watch brand, model, serial, fractions, and price — then automatically:
-1. Updates the CRE workflow payload
-2. Runs the CRE workflow to mint the watch on-chain
-3. Generates ERC-1155 metadata from on-chain data
-4. Uploads metadata to Pinata (IPFS)
-5. Updates the contract's base URI
+**What it does:**
+1. Triggers the Chainlink CRE workflow.
+2. Mints the watch on-chain (verified appraisal).
+3. Generates metadata and uploads it to IPFS via Pinata.
+4. Auto-updates the smart contract's `baseURI`.
 
-### Manual Step-by-Step
+### Secondary Trading
 
-If you prefer running each step individually:
-
-```bash
-# 1. Edit the watch payload
-nano luxury-watch-workflow/http_trigger_payload.json
-
-# 2. Run the CRE workflow
-cre workflow simulate luxury-watch-workflow \
-  --target local-simulation --broadcast --trigger-index 0 \
-  --non-interactive \
-  --http-payload @$CRE_PROJECT_ROOT/luxury-watch-workflow/http_trigger_payload.json
-
-# 3. Upload metadata to IPFS and update contract URI
-node scripts/pinata-upload.js
-
-# 4. (Optional) Preview without updating the contract
-node scripts/pinata-upload.js --dry-run
-```
-
-### Read On-Chain Data
+Simulate trading via terminal:
 
 ```bash
-# Total registered watches
-cast call $LUXURY_WATCH "getWatchCount()" --rpc-url $SEPOLIA_RPC
+# Set price for your fractions (e.g., 0.5 ETH)
+cast send $LUXURY_WATCH "setFractionPrice(uint256,uint256)" 0 500000000000000000 --private-key $BUYER_KEY --rpc-url $SEPOLIA_RPC
 
-# Watch details for Token ID 0
-cast call $LUXURY_WATCH "getWatchDetails(uint256)" 0 --rpc-url $SEPOLIA_RPC
-
-# Metadata URI for Token ID 0
-cast call $LUXURY_WATCH "uri(uint256)" 0 --rpc-url $SEPOLIA_RPC
-
-# Check fraction balance
-cast call $LUXURY_WATCH "balanceOf(address,uint256)" <wallet_address> 0 --rpc-url $SEPOLIA_RPC
+# List them for sale
+cast send $LUXURY_WATCH "UpdateChoice(uint256,bool)" 0 true --private-key $BUYER_KEY --rpc-url $SEPOLIA_RPC
 ```
 
 ---
 
 ## 📜 Smart Contract Functions
 
-### LuxuryWatch.sol (ERC-1155)
-
 | Function | Description |
 |----------|-------------|
-| `registerAndMintWatch(...)` | Register a new watch and mint fractional tokens |
-| `TransferTokenWatchFromVault(...)` | Buy fractions from the original creator |
-| `TransferTokenWatchfromUser(...)` | Buy fractions from another holder |
-| `TransferTokenWatchBatchFromVault(...)` | Batch buy from creator |
-| `TransferTokenWatchBatchFromUser(...)` | Batch buy from holder |
-| `redeemForPhysical(id)` | Burn 100% of fractions to claim the physical watch |
-| `UpdateChoice(id, bool)` | Toggle your fractions as "for sale" |
-| `setFractionPrice(id, price)` | Set your custom resale price per fraction |
-| `setBaseURI(uri)` | Update the IPFS metadata base URI (owner only) |
-| `uri(id)` | Returns the IPFS metadata URL for a given token |
-| `getWatchDetails(id)` | Returns brand, model, serial, total fractions |
-| `getWatchCount()` | Returns total number of registered watches |
+| `registerAndMintWatch(...)` | Register watch & mint fractions via CRE |
+| `TransferTokenWatchFromVault(...)` | Buy fractions from the creator (vault) |
+| `TransferTokenWatchfromUser(...)` | Peer-to-peer fractional purchase |
+| `redeemForPhysical(id)` | Burn 100% fractions to redeem physical asset |
+| `UpdateChoice(id, bool)` | Toggle fractions for sale |
+| `setFractionPrice(id, price)` | Set custom resale price |
+| `uri(id)` | Returns immutable IPFS metadata link |
 
 ---
 
-## 🔗 Tech Stack
+## 🧪 Demo Data
 
-| Layer | Technology |
-|-------|-----------|
-| Smart Contracts | Solidity ^0.8.25, OpenZeppelin ERC-1155 |
-| Development | Foundry (Forge, Cast) |
-| Off-Chain Orchestration | Chainlink CRE (Runtime Environment) |
-| Workflow Runtime | Bun, TypeScript |
-| IPFS / Metadata | Pinata, Node.js (axios, ethers) |
-| Network | Ethereum Sepolia Testnet |
-
----
-
-## 🧪 Sample Watch Payloads
-
-The CRE workflow's dummy appraisal database recognizes these serials:
-
-| Serial | Watch | Appraised Value |
-|--------|-------|-----------------|
-| `RLX-116500-ABC123` | Rolex Daytona | $35,000 |
-| `AP-15500ST-XYZ789` | Audemars Piguet Royal Oak | $45,000 |
-| `PP-5711A-DEF456` | Patek Philippe Nautilus | $120,000 |
-
-Any other serial is auto-approved at $10,000 for demo purposes.
+The CRE workflow recognizes these test serials for specific valuations:
+- `RLX-116500-ABC123` (Rolex Daytona): $35,000
+- `AP-15500ST-XYZ789` (AP Royal Oak): $45,000
+- `PP-5711A-DEF456` (Patek Philippe): $120,000
 
 ---
 
 ## 📄 License
-
 MIT

@@ -1,19 +1,19 @@
 {
-  "name": "Casio F91W-1 #0",
-  "description": "Fractional ownership of a verified Casio F91W-1. Serial: LLt-74.",
+  "name": "Rolex Daytona #0",
+  "description": "Fractional ownership of a verified Rolex Daytona. Serial: RLX-116500-ABC123.",
   "image": "ipfs://bafybeicgoa2y4zhzqolx6ghciwmkiismqfpegqab7hbhndadnbneamkkwa/placeholder.png",
   "attributes": [
     {
       "trait_type": "Brand",
-      "value": "Casio"
+      "value": "Rolex"
     },
     {
       "trait_type": "Model",
-      "value": "F91W-1"
+      "value": "Daytona"
     },
     {
       "trait_type": "Serial",
-      "value": "LLt-74"
+      "value": "RLX-116500-ABC123"
     },
     {
       "trait_type": "Total Fractions",

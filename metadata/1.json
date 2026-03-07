@@ -1,19 +1,19 @@
 {
-  "name": "Rolex Submariner #1",
-  "description": "Fractional ownership of a verified Rolex Submariner. Serial: RLX-12300-78.",
+  "name": "Casio MPV-20 #1",
+  "description": "Fractional ownership of a verified Casio MPV-20. Serial: S23OP.",
   "image": "ipfs://bafybeicgoa2y4zhzqolx6ghciwmkiismqfpegqab7hbhndadnbneamkkwa/placeholder.png",
   "attributes": [
     {
       "trait_type": "Brand",
-      "value": "Rolex"
+      "value": "Casio"
     },
     {
       "trait_type": "Model",
-      "value": "Submariner"
+      "value": "MPV-20"
     },
     {
       "trait_type": "Serial",
-      "value": "RLX-12300-78"
+      "value": "S23OP"
     },
     {
       "trait_type": "Total Fractions",

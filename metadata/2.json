@@ -1,19 +1,19 @@
 {
-  "name": "Casio XP-54 #2",
-  "description": "Fractional ownership of a verified Casio XP-54. Serial: OS-09.",
+  "name": "Rolex Daytona #2",
+  "description": "Fractional ownership of a verified Rolex Daytona. Serial: RLX-116500-ABC123.",
   "image": "ipfs://bafybeicgoa2y4zhzqolx6ghciwmkiismqfpegqab7hbhndadnbneamkkwa/placeholder.png",
   "attributes": [
     {
       "trait_type": "Brand",
-      "value": "Casio"
+      "value": "Rolex"
     },
     {
       "trait_type": "Model",
-      "value": "XP-54"
+      "value": "Daytona"
     },
     {
       "trait_type": "Serial",
-      "value": "OS-09"
+      "value": "RLX-116500-ABC123"
     },
     {
       "trait_type": "Total Fractions",
