@@ -4,19 +4,14 @@ pragma solidity ^0.8.25;
 import {IReceiverTemplate} from "./IReceiverTemplate.sol";
 import {LuxuryWatch} from "./LuxuryWatch.sol";
 import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title WatchMintingConsumer
  * @notice Consumer contract that receives CRE workflow reports and registers/mints luxury watches.
  * @dev Inherits IReceiverTemplate for secure DON-signed report validation.
- *
- * Flow:
- * 1. Off-chain watch data (brand, model, serial, appraisal) is sent to the CRE workflow via HTTP trigger.
- * 2. CRE workflow validates the data (dummy appraisal check) and generates a DON-signed report.
- * 3. The Forwarder validates signatures and calls this contract's onReport().
- * 4. This contract decodes the report and calls LuxuryWatch.registerAndMintWatch().
  */
-contract WatchMintingConsumer is IReceiverTemplate, ERC1155Holder {
+contract WatchMintingConsumer is IReceiverTemplate, ERC1155Holder, Ownable {
     LuxuryWatch public immutable luxuryWatch;
 
     event WatchRegistered(
@@ -40,27 +35,21 @@ contract WatchMintingConsumer is IReceiverTemplate, ERC1155Holder {
         address _luxuryWatch,
         address _expectedAuthor,
         bytes10 _expectedWorkflowName
-    ) IReceiverTemplate(_expectedAuthor, _expectedWorkflowName) {
+    ) IReceiverTemplate(_expectedAuthor, _expectedWorkflowName) Ownable(msg.sender) {
         luxuryWatch = LuxuryWatch(_luxuryWatch);
     }
 
     /**
      * @notice Receive report from the CRE Forwarder.
-     * @param metadata Encoded metadata (not used in testing version)
-     * @param report Encoded watch registration data
      */
     function onReport(bytes calldata metadata, bytes calldata report) external override {
-        // In production, validate metadata here (workflow name, author, etc.)
-        // For testing/demo purposes, we skip validation
         _processReport(report);
     }
 
     /**
      * @notice Process the watch registration report.
-     * @param report ABI-encoded: (uint256 fractions, string brand, string model, string serial, uint256 pricePerFraction)
      */
     function _processReport(bytes calldata report) internal override {
-        // Decode the report
         (
             uint256 fractions,
             string memory brand,
@@ -69,17 +58,27 @@ contract WatchMintingConsumer is IReceiverTemplate, ERC1155Holder {
             uint256 pricePerFraction
         ) = abi.decode(report, (uint256, string, string, string, uint256));
 
-        // Get the current token ID before minting (will be the new watch's ID)
         uint256 watchId = luxuryWatch.tok_id();
 
-        // Register and mint the watch
-        // Note: The tokens are minted to this contract (msg.sender inside LuxuryWatch)
-        // The owner can then transfer them as needed
         try luxuryWatch.registerAndMintWatch(fractions, brand, model, serial, pricePerFraction) {
             emit WatchRegistered(address(this), watchId, brand, model, fractions, pricePerFraction);
         } catch {
             revert RegistrationFailed();
         }
+    }
+
+    /**
+     * @notice Proxy to update the sale status of a watch owned by this contract.
+     */
+    function updateWatchSaleStatus(uint256 watchId, bool forSale) external onlyOwner {
+        luxuryWatch.UpdateChoice(watchId, forSale);
+    }
+
+    /**
+     * @notice Proxy to update the fraction price of a watch owned by this contract.
+     */
+    function setWatchFractionPrice(uint256 watchId, uint256 newPrice) external onlyOwner {
+        luxuryWatch.setFractionPrice(watchId, newPrice);
     }
 
     /**
@@ -89,3 +88,4 @@ contract WatchMintingConsumer is IReceiverTemplate, ERC1155Holder {
         return IReceiverTemplate.supportsInterface(interfaceId) || super.supportsInterface(interfaceId);
     }
 }
+

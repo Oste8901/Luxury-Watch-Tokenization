@@ -1,8 +1,8 @@
 {
     "evms": [
         {
-            "luxuryWatchAddress": "0xEF2Fa135ec51a32c79f85E02fB6Ea5E51E0336aa",
-            "consumerAddress": "0x27a7AAbCD0154d929f64F326FE81411A49597DeD",
+            "luxuryWatchAddress": "0x1fA4f8ec104a7Ac0102634b48079dDbA854159a0",
+            "consumerAddress": "0x0828dC82fAE936C520157c013Be974FbDef63F1D",
             "chainSelectorName": "ethereum-testnet-sepolia",
             "gasLimit": "1000000"
         }
