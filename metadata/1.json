@@ -1,0 +1,27 @@
+{
+  "name": "Rolex Submariner #1",
+  "description": "Fractional ownership of a verified Rolex Submariner. Serial: RLX-12300-78.",
+  "image": "ipfs://bafybeicgoa2y4zhzqolx6ghciwmkiismqfpegqab7hbhndadnbneamkkwa/placeholder.png",
+  "attributes": [
+    {
+      "trait_type": "Brand",
+      "value": "Rolex"
+    },
+    {
+      "trait_type": "Model",
+      "value": "Submariner"
+    },
+    {
+      "trait_type": "Serial",
+      "value": "RLX-12300-78"
+    },
+    {
+      "trait_type": "Total Fractions",
+      "value": "100"
+    },
+    {
+      "trait_type": "Status",
+      "value": "Vaulted"
+    }
+  ]
+}
