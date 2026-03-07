@@ -110,3 +110,4 @@ docs/
 
 # Dotenv file
 .env
+metadata/ 
