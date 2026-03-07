@@ -3,6 +3,7 @@ pragma solidity ^0.8.25;
 
 import {IReceiverTemplate} from "./IReceiverTemplate.sol";
 import {LuxuryWatch} from "./LuxuryWatch.sol";
+import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 
 /**
  * @title WatchMintingConsumer
@@ -15,7 +16,7 @@ import {LuxuryWatch} from "./LuxuryWatch.sol";
  * 3. The Forwarder validates signatures and calls this contract's onReport().
  * 4. This contract decodes the report and calls LuxuryWatch.registerAndMintWatch().
  */
-contract WatchMintingConsumer is IReceiverTemplate {
+contract WatchMintingConsumer is IReceiverTemplate, ERC1155Holder {
     LuxuryWatch public immutable luxuryWatch;
 
     event WatchRegistered(
@@ -80,4 +81,11 @@ contract WatchMintingConsumer is IReceiverTemplate {
             revert RegistrationFailed();
         }
     }
-} 
+
+    /**
+     * @dev ERC165 interface support override for multiple inheritance.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IReceiverTemplate, ERC1155Holder) returns (bool) {
+        return IReceiverTemplate.supportsInterface(interfaceId) || super.supportsInterface(interfaceId);
+    }
+}

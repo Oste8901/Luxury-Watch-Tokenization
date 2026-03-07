@@ -34,7 +34,7 @@ abstract contract IReceiverTemplate {
     /**
      * @dev ERC165 interface support (required by some implementations)
      */
-    function supportsInterface(bytes4 interfaceId) public pure virtual returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
         return interfaceId == this.onReport.selector;
     }
 }
