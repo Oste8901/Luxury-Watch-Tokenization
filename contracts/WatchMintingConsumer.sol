@@ -3,7 +3,9 @@ pragma solidity ^0.8.25;
 
 import {IReceiverTemplate} from "./IReceiverTemplate.sol";
 import {LuxuryWatch} from "./LuxuryWatch.sol";
-import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import {
+    ERC1155Holder
+} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
@@ -35,14 +37,20 @@ contract WatchMintingConsumer is IReceiverTemplate, ERC1155Holder, Ownable {
         address _luxuryWatch,
         address _expectedAuthor,
         bytes10 _expectedWorkflowName
-    ) IReceiverTemplate(_expectedAuthor, _expectedWorkflowName) Ownable(msg.sender) {
+    )
+        IReceiverTemplate(_expectedAuthor, _expectedWorkflowName)
+        Ownable(msg.sender)
+    {
         luxuryWatch = LuxuryWatch(_luxuryWatch);
     }
 
     /**
      * @notice Receive report from the CRE Forwarder.
      */
-    function onReport(bytes calldata metadata, bytes calldata report) external override {
+    function onReport(
+        bytes calldata metadata,
+        bytes calldata report
+    ) external override {
         _processReport(report);
     }
 
@@ -60,8 +68,23 @@ contract WatchMintingConsumer is IReceiverTemplate, ERC1155Holder, Ownable {
 
         uint256 watchId = luxuryWatch.tok_id();
 
-        try luxuryWatch.registerAndMintWatch(fractions, brand, model, serial, pricePerFraction) {
-            emit WatchRegistered(address(this), watchId, brand, model, fractions, pricePerFraction);
+        try
+            luxuryWatch.registerAndMintWatch(
+                fractions,
+                brand,
+                model,
+                serial,
+                pricePerFraction
+            )
+        {
+            emit WatchRegistered(
+                address(this),
+                watchId,
+                brand,
+                model,
+                fractions,
+                pricePerFraction
+            );
         } catch {
             revert RegistrationFailed();
         }
@@ -70,22 +93,53 @@ contract WatchMintingConsumer is IReceiverTemplate, ERC1155Holder, Ownable {
     /**
      * @notice Proxy to update the sale status of a watch owned by this contract.
      */
-    function updateWatchSaleStatus(uint256 watchId, bool forSale) external onlyOwner {
+    function updateWatchSaleStatus(
+        uint256 watchId,
+        bool forSale
+    ) external onlyOwner {
         luxuryWatch.UpdateChoice(watchId, forSale);
     }
 
     /**
      * @notice Proxy to update the fraction price of a watch owned by this contract.
      */
-    function setWatchFractionPrice(uint256 watchId, uint256 newPrice) external onlyOwner {
+    function setWatchFractionPrice(
+        uint256 watchId,
+        uint256 newPrice
+    ) external onlyOwner {
         luxuryWatch.setFractionPrice(watchId, newPrice);
     }
 
     /**
      * @dev ERC165 interface support override for multiple inheritance.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(IReceiverTemplate, ERC1155Holder) returns (bool) {
-        return IReceiverTemplate.supportsInterface(interfaceId) || super.supportsInterface(interfaceId);
+    function supportsInterface(
+        bytes4 interfaceId
+    )
+        public
+        view
+        virtual
+        override(IReceiverTemplate, ERC1155Holder)
+        returns (bool)
+    {
+        return
+            IReceiverTemplate.supportsInterface(interfaceId) ||
+            super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @notice Accept ETH from vault sales (buyers' payments are forwarded here
+     *         because this contract is the watch_creator after CRE minting).
+     */
+    receive() external payable {}
+
+    /**
+     * @notice Withdraw accumulated ETH from vault sales to the owner.
+     */
+    function withdraw() external onlyOwner {
+        (bool success, ) = payable(owner()).call{value: address(this).balance}(
+            ""
+        );
+        require(success, "Withdraw failed");
     }
 }
-

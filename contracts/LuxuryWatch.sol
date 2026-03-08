@@ -53,11 +53,15 @@ contract LuxuryWatch is ERC1155, Ownable{
     _safeTransferFrom(creator, msg.sender, token_id, buy_amount, "");
     isForSale[token_id][msg.sender] = false;
     emit WatchtokenTransfered(msg.sender, buy_amount);
-    (bool success,) = payable(creator).call{value: buy_value}("");
-    if(!success) {
-        revert PaymentFailed();
-    }
-   
+        (bool success,) = payable(creator).call{value: buy_value}("");
+        if(!success) {
+            revert PaymentFailed();
+        }
+
+        if (msg.value > buy_value) {
+            (bool refundSuccess,) = payable(msg.sender).call{value: msg.value - buy_value}("");
+            if(!refundSuccess) revert PaymentFailed();
+        }
     }
 
 function TransferTokenWatchfromUser(address from, uint256 _id_, uint256 am_t) public payable {
@@ -130,9 +134,10 @@ function TransferTokenWatchBatchFromVault(
     if(!success) revert PaymentFailed();
 
     // 8. REFUND: Send back any extra ETH sent by mistake
-    /*if (msg.value > totalGrandCost) {
-        payable(msg.sender).transfer(msg.value - totalGrandCost); 
-    }*/
+    if (msg.value > totalGrandCost) {
+        (bool refundSuccess,) = payable(msg.sender).call{value: msg.value - totalGrandCost}("");
+        if(!refundSuccess) revert PaymentFailed();
+    }
 
     emit WatchtokenTransfered(msg.sender, totalGrandCost); // Updated event for batch
 }
