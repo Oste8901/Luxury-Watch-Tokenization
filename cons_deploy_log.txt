@@ -1,0 +1,12 @@
+Compiling 3 files with Solc 0.8.28
+Solc 0.8.28 finished in 282.19ms
+Compiler run successful with warnings:
+Warning (5667): Unused function parameter. Remove or comment out the variable name to silence this warning.
+  --> contracts/WatchMintingConsumer.sol:45:23:
+   |
+45 |     function onReport(bytes calldata metadata, bytes calldata report) external override {
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^
+
+Deployer: 0x6b84d17267E0112A1Adb2EEd40F7A12d22C92173
+Deployed to: 0x45aE92b5837E6266fEf1b6ddA4FF987dD3DBAc7D
+Transaction hash: 0x5992874481443a5d6da7efcb6c7f5409b206a4ab22c29e8bc22c9177368bf2eb

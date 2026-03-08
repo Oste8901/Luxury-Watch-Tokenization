@@ -1,8 +1,9 @@
 {
-    "watchBrand": "Rolex",
-    "watchModel": "Daytona",
-    "watchSerial": "RLX-116500-ABC123",
+    "ownerAddress": "0x5F11c0d4cd87019be7f8d9Ee5106aE6a10104570",
+    "watchBrand": "Patek",
+    "watchModel": "Philippe",
+    "watchSerial": "ch-23pa",
     "totalFractions": 100,
-    "pricePerFractionWei": "350000000000000000",
+    "pricePerFractionWei": "10000000000000000",
     "appraisalSource": "WatchCert Labs"
 }

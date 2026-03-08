@@ -1,19 +1,19 @@
 {
-  "name": "Casio MPV-20 #1",
-  "description": "Fractional ownership of a verified Casio MPV-20. Serial: S23OP.",
+  "name": "Rolex Daytona #1",
+  "description": "Fractional ownership of a verified Rolex Daytona. Serial: RLX-116500-ABC123.",
   "image": "ipfs://bafybeicgoa2y4zhzqolx6ghciwmkiismqfpegqab7hbhndadnbneamkkwa/placeholder.png",
   "attributes": [
     {
       "trait_type": "Brand",
-      "value": "Casio"
+      "value": "Rolex"
     },
     {
       "trait_type": "Model",
-      "value": "MPV-20"
+      "value": "Daytona"
     },
     {
       "trait_type": "Serial",
-      "value": "S23OP"
+      "value": "RLX-116500-ABC123"
     },
     {
       "trait_type": "Total Fractions",

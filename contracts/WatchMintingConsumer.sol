@@ -59,17 +59,19 @@ contract WatchMintingConsumer is IReceiverTemplate, ERC1155Holder, Ownable {
      */
     function _processReport(bytes calldata report) internal override {
         (
+            address ownerAddress,
             uint256 fractions,
             string memory brand,
             string memory model,
             string memory serial,
             uint256 pricePerFraction
-        ) = abi.decode(report, (uint256, string, string, string, uint256));
+        ) = abi.decode(report, (address, uint256, string, string, string, uint256));
 
         uint256 watchId = luxuryWatch.tok_id();
 
         try
             luxuryWatch.registerAndMintWatch(
+                ownerAddress,
                 fractions,
                 brand,
                 model,
@@ -78,7 +80,7 @@ contract WatchMintingConsumer is IReceiverTemplate, ERC1155Holder, Ownable {
             )
         {
             emit WatchRegistered(
-                address(this),
+                ownerAddress,
                 watchId,
                 brand,
                 model,

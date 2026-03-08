@@ -1,19 +1,19 @@
 {
-  "name": "Rolex Daytona #2",
-  "description": "Fractional ownership of a verified Rolex Daytona. Serial: RLX-116500-ABC123.",
+  "name": "Patek Philippe #2",
+  "description": "Fractional ownership of a verified Patek Philippe. Serial: ch-23pa.",
   "image": "ipfs://bafybeicgoa2y4zhzqolx6ghciwmkiismqfpegqab7hbhndadnbneamkkwa/placeholder.png",
   "attributes": [
     {
       "trait_type": "Brand",
-      "value": "Rolex"
+      "value": "Patek"
     },
     {
       "trait_type": "Model",
-      "value": "Daytona"
+      "value": "Philippe"
     },
     {
       "trait_type": "Serial",
-      "value": "RLX-116500-ABC123"
+      "value": "ch-23pa"
     },
     {
       "trait_type": "Total Fractions",

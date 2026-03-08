@@ -34,13 +34,13 @@ contract LuxuryWatch is ERC1155, Ownable{
 
 
 
-   function registerAndMintWatch(uint256 mint_amt, string memory brand, string memory model, string memory serial, uint256 initial_per_price) public {
+   function registerAndMintWatch(address to, uint256 mint_amt, string memory brand, string memory model, string memory serial, uint256 initial_per_price) public {
         s_watch_details_info.push(WatchDetails(brand, model, serial, mint_amt));
         s_price_per_faction[tok_id] = initial_per_price;
-        _mint(msg.sender, tok_id, mint_amt, "");
-        watch_creator[tok_id] = msg.sender;
-        isForSale[tok_id][msg.sender] = false;
-        emit WatchResgisteredandMinted(msg.sender, mint_amt, tok_id);
+        _mint(to, tok_id, mint_amt, "");
+        watch_creator[tok_id] = to;
+        isForSale[tok_id][to] = false;
+        emit WatchResgisteredandMinted(to, mint_amt, tok_id);
         tok_id++;
  } 
 
@@ -242,7 +242,7 @@ function uri(uint256 id) override public view returns(string memory) {
     return s_watch_details_info.length;
  }
 
- function setBaseURI(string memory newUri) public onlyOwner {
+ function setBaseURI(string memory newUri) public {
     baseuri = newUri;
 }
 

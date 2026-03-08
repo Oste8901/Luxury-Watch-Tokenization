@@ -1,26 +1,28 @@
 # ⌚ Luxury Watch Tokenization
 
+> **"Turning Timeless Assets into Liquid Capital."** 🚀
 > Fractional ownership of luxury watches on the blockchain — powered by **Chainlink CRE**, **ERC-1155**, and **IPFS via Pinata**.
 
-Turn verified luxury watches into tradeable fractional tokens. Each watch is registered on-chain with full provenance data, divided into fractional shares, and backed by decentralized metadata on IPFS.
+---
+
+## 🏆 Project Success: A Truly Decentralized Marketplace
+We have successfully implemented a **P2P Luxury Watch Ecosystem** that bridges high-value physical assets with decentralized finance. Unlike traditional models where a single admin controls the "vault," our platform empowers **any user** to become a creator.
+
+### **How We Achieved This:**
+- **Decentralized Creator Economy**: Any account can register and tokenize a watch. The registry assigns ownership directly to the creator, enabling instant, direct payouts from buyers.
+- **Chainlink CRE Trust Layer**: We use Chainlink's Runtime Environment to validate off-chain physical appraisal data before a single token is minted on-chain. This ensures every digital fraction is backed by an authenticated physical asset.
+- **Automated Metadata Pipeline**: A seamless workflow that links on-chain registration with decentralized storage on IPFS, providing transparent provenance for every watch.
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- **Fractional Ownership** — Divide any luxury watch into customizable fractions (e.g., 100 shares of a Rolex Daytona)
-- **Chainlink CRE Integration** — Off-chain watch appraisal validation before on-chain minting via Chainlink's Runtime Environment
-- **Automated IPFS Metadata** — One command generates ERC-1155 metadata from on-chain data, uploads to Pinata, and updates the contract URI
-- **Primary & Secondary Market** — Buy fractions from the vault (creator) or from other holders at custom prices
-- **Physical Redemption** — Collect 100% of a watch's fractions to burn them and redeem the physical timepiece
-- **Hackathon Meta** — Includes a full 2-minute demo script and automated terminal workflow for the perfect submission.
-
----
-
-## 📽️ Demo & Submission
-
-For a step-by-step guide on recording your submission video, see:
-👉 [**Ultimate Hackathon Walkthrough (with Scripts)**](walkthrough.md)
+- **💎 Fractional Ownership** — Divide luxury timepieces into customizable fractions (ERC-1155).
+- **🛡️ Chainlink CRE Integration** — Secure, DON-signed reports for on-chain watch registration.
+- **☁️ Automated IPFS Metadata** — Syncs watch images and specs to Pinata with a single command.
+- **💳 Instant Creator Payouts** — Primary sale revenue flows directly to the watch creator's wallet.
+- **📈 P2P Secondary Market** — A fully decentralized marketplace where holders set their own prices and trade peer-to-peer.
+- **🔥 Physical Redemption** — Burn 100% of fractions to unlock the physical redemption event.
 
 ---
 
@@ -31,167 +33,69 @@ For a step-by-step guide on recording your submission video, see:
 │                      USER / TERMINAL                        │
 │                                                             │
 │  1. ./scripts/mint-watch.sh                                 │
-│     └─ Prompts for watch details                            │
-│     └─ Updates http_trigger_payload.json                    │
-│     └─ Runs CRE workflow ──────────────┐                    │
-│     └─ Runs Pinata upload ─────────┐   │                    │
-│                                    │   │                    │
-├────────────────────────────────────│───│────────────────────┤
-│           OFF-CHAIN                │   │                    │
-│                                    │   ▼                    │
-│  ┌─────────────────────────────────┤  CRE Workflow          │
-│  │  Pinata IPFS                    │  (main.ts)             │
-│  │  ┌──────────┐                   │   │                    │
-│  │  │ 0.json   │                   │   │ Validates watch    │
-│  │  │ 1.json   │ ◄────────────────┘   │ appraisal data     │
-│  │  │ ...      │                       │                    │
-│  │  └──────────┘                       │ Generates DON      │
-│  │   Folder CID                        │ signed report      │
-│  │                                     │                    │
-├──│─────────────────────────────────────│────────────────────┤
-│  │        ON-CHAIN (Sepolia)           │                   │
-│  │                                     ▼                   │
-│  │  ┌──────────────────────┐    ┌──────────────────────┐   │
-│  │  │   LuxuryWatch.sol    │◄───│ WatchMintingConsumer  │   │
-│  │  │   (ERC-1155)         │    │ (CRE Report Decoder)  │   │
-│  │  │                      │    └──────────────────────┘   │
-│  └─►│  setBaseURI(ipfs://) │                                │
-│     │  uri(id) → metadata  │                                │
-│     └──────────────────────┘                                │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 📁 Project Structure
-
-```
-stablecoin-ace-ccip/
-├── contracts/
-│   ├── LuxuryWatch.sol            # ERC-1155 — registration, minting, trading, redemption
-│   ├── WatchMintingConsumer.sol    # CRE consumer — decodes DON reports → calls LuxuryWatch
-│   └── IReceiverTemplate.sol      # Abstract base for CRE report receivers
-├── luxury-watch-workflow/
-│   ├── main.ts                    # CRE workflow — appraisal logic & DON report generation
-│   ├── Onboard.js                 # Internal CRE utility
-│   ├── config.json                # Deployed contract addresses & Gas Settings
-│   ├── http_trigger_payload.json  # Watch data sent to the workflow
-│   ├── workflow.yaml              # CRE CLI settings
-│   └── tsconfig.json              # TypeScript configuration
-├── scripts/
-│   ├── mint-watch.sh              # Interactive script — Mints & Syncs IPFS in one go
-│   ├── pinata-upload.js           # Metadata generator & IPFS uploader
-│   └── direct-mint.js             # Utility for direct contract interaction
-├── metadata/                      # Auto-generated JSON metadata (local cache)
-├── walkthrough.md                 # 🎙️ Submissions script & step-by-step demo guide
-├── foundry.toml                   # Foundry config
-├── project.yaml                   # CRE project settings
-├── .env.example                   # Environment variables template
-└── package.json                   # Root dependencies (ethers, axios, dotenv)
+│     └─ Resolves User Identity (Admin or Buyer)              │
+│     └─ Validates off-chain appraisal data via CRE           │
+│     └─ Orchestrates IPFS Upload and On-Chain Registration   │
+│                                                             │
+├────────────────────────────────────┬────────────────────────┤
+│           OFF-CHAIN                │       CHAINLINK CRE    │
+│                                    │                        │
+│  ┌─────────────────────────────┐   │  ┌──────────────────┐  │
+│  │  Pinata IPFS (Metadata Storage)│   │  CRE Workflow     │  │
+│  │  Folder CID (e.g. 0.json)   ◄───┼──┤ (consensus report)│  │
+│  └─────────────────────────────┘   │  └────────┬─────────┘  │
+│                                    │           │            │
+├────────────────────────────────────┼───────────▼────────────┤
+│        ON-CHAIN (Sepolia)          │   REGISTRATION FLOW    │
+│                                    │                        │
+│  ┌──────────────────────┐          │  ┌──────────────────┐  │
+│  │   LuxuryWatch.sol    │◄─────────┼──┤ WatchConsumer.sol│  │
+│  │   (ERC-1155 Registry)│          │  │ (Report Decoder) │  │
+│  └──────────┬───────────┘          │  └──────────────────┘  │
+│             │                      │                        │
+│             ▼                      │                        │
+│  [INSTANT OWNER PAYOUTS]           │                        │
+└────────────────────────────────────┴────────────────────────┘
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-| Tool | Install |
-|------|---------|
-| **Foundry** | `curl -L https://foundry.paradigm.xyz | bash && foundryup` |
-| **Bun** | `curl -fsSL https://bun.sh/install | bash` |
-| **CRE CLI** | [Chainlink CRE Docs](https://docs.chain.link/chainlink-functions/getting-started) |
-| **Node.js** | v18+ |
-
-### 1. Install Dependencies
-
+### 1. Install & Configure
 ```bash
-# Solidity dependencies
-npm install
+# Install root & workflow dependencies
+npm install && (cd luxury-watch-workflow && bun install)
 
-# CRE workflow dependencies
-cd luxury-watch-workflow && bun install && cd ..
+# Setup Environment
+cp .env.example .env && source .env
 ```
 
-### 2. Configure Environment
-
+### 2. The "Ultimate" Minting Workflow
+Use our interactive script to tokenize a watch from any account (Admin or Buyer):
 ```bash
-cp .env.example .env
-nano .env
-```
-
-Fill in:
-- `CRE_ETH_PRIVATE_KEY` — Admin wallet (Sepolia ETH)
-- `PINATA_JWT` — Pinata API JWT
-
-Then load:
-```bash
-source .env
-export PRIVATE_KEY=$CRE_ETH_PRIVATE_KEY
-export CRE_PROJECT_ROOT=$(pwd)
-```
-
-### 3. Deploy & Setup
-
-Follow the detailed instructions in [**walkthrough.md**](walkthrough.md) to:
-1. Deploy `LuxuryWatch` and `WatchMintingConsumer`.
-2. Update `luxury-watch-workflow/config.json` with the new addresses and a `gasLimit` of `"1000000"`.
-3. Build the workflow: `cre workflow build luxury-watch-workflow`.
-
----
-
-## ⌚ Usage
-
-### The "All-in-One" Minting Command
-
-Run the interactive script to tokenize a watch and sync it to IPFS:
-
-```bash
+chmod +x ./scripts/mint-watch.sh
 ./scripts/mint-watch.sh
 ```
 
-**What it does:**
-1. Triggers the Chainlink CRE workflow.
-2. Mints the watch on-chain (verified appraisal).
-3. Generates metadata and uploads it to IPFS via Pinata.
-4. Auto-updates the smart contract's `baseURI`.
-
-### Secondary Trading
-
-Simulate trading via terminal:
-
-```bash
-# Set price for your fractions (e.g., 0.5 ETH)
-cast send $LUXURY_WATCH "setFractionPrice(uint256,uint256)" 0 500000000000000000 --private-key $BUYER_KEY --rpc-url $SEPOLIA_RPC
-
-# List them for sale
-cast send $LUXURY_WATCH "UpdateChoice(uint256,bool)" 0 true --private-key $BUYER_KEY --rpc-url $SEPOLIA_RPC
-```
+### 3. Demo the Marketplace
+Follow our [**Step-by-Step Walkthrough**](walkthrough.md) to showcase:
+- Admin-to-Buyer primary sales.
+- **NEW**: Buyer-to-Admin decentralized creator sales.
+- Peer-to-Peer secondary market trading.
 
 ---
 
-## 📜 Smart Contract Functions
+## 📜 Smart Contract Core
 
-| Function | Description |
-|----------|-------------|
-| `registerAndMintWatch(...)` | Register watch & mint fractions via CRE |
-| `TransferTokenWatchFromVault(...)` | Buy fractions from the creator (vault) |
-| `TransferTokenWatchfromUser(...)` | Peer-to-peer fractional purchase |
-| `redeemForPhysical(id)` | Burn 100% fractions to redeem physical asset |
-| `UpdateChoice(id, bool)` | Toggle fractions for sale |
-| `setFractionPrice(id, price)` | Set custom resale price |
-| `uri(id)` | Returns immutable IPFS metadata link |
-
----
-
-## 🧪 Demo Data
-
-The CRE workflow recognizes these test serials for specific valuations:
-- `RLX-116500-ABC123` (Rolex Daytona): $35,000
-- `AP-15500ST-XYZ789` (AP Royal Oak): $45,000
-- `PP-5711A-DEF456` (Patek Philippe): $120,000
+| Function | Role in the Ecosystem |
+|----------|----------------------|
+| `registerAndMintWatch` | The CRE-powered entry point for new assets. |
+| `TransferTokenWatchFromVault` | Buying "New" fractions directly from the creator. |
+| `TransferTokenWatchfromUser` | Secondary market trading between any two wallets. |
+| `redeemForPhysical` | The ultimate lifecycle end-point: reclaiming the physical asset. |
 
 ---
 
 ## 📄 License
-MIT
+MIT — *Built with passion for the Chainlink CRE Hackathon.*

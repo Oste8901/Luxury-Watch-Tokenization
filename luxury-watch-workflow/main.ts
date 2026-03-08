@@ -1,4 +1,4 @@
-import { 
+import {
 	bytesToHex,
 	cre,
 	getNetwork,
@@ -32,6 +32,7 @@ type Config = z.infer<typeof configSchema>
 // ========================================
 // Luxury watch registration/minting payload
 const watchPayloadSchema = z.object({
+	ownerAddress: z.string(),
 	watchBrand: z.string(),
 	watchModel: z.string(),
 	watchSerial: z.string(),
@@ -101,10 +102,11 @@ const submitWatchRegistration = (
 	runtime.log(`  Price/Fraction: ${watchData.pricePerFractionWei} wei`)
 
 	// Encode report data matching WatchMintingConsumer._processReport():
-	// (uint256 fractions, string brand, string model, string serial, uint256 pricePerFraction)
+	// (address ownerAddress, uint256 fractions, string brand, string model, string serial, uint256 pricePerFraction)
 	const reportData = encodeAbiParameters(
-		parseAbiParameters('uint256 fractions, string brand, string model, string serial, uint256 pricePerFraction'),
+		parseAbiParameters('address ownerAddress, uint256 fractions, string brand, string model, string serial, uint256 pricePerFraction'),
 		[
+			watchData.ownerAddress as `0x${string}`,
 			BigInt(watchData.totalFractions),
 			watchData.watchBrand,
 			watchData.watchModel,
@@ -231,7 +233,7 @@ const initWorkflow = (config: Config) => {
 	const evmClient = new cre.capabilities.EVMClient(network.chainSelector.selector)
 
 	return [
-		cre.handler(httpTrigger.trigger({}), (runtime, payload) => 
+		cre.handler(httpTrigger.trigger({}), (runtime, payload) =>
 			onHTTPTrigger(runtime, evmClient, payload)
 		),
 	]
